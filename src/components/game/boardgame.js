@@ -138,6 +138,7 @@ const ChessSet = (props) => {
                 let merged = {...{"cell": cell, "X": Left+squareSize*i, "Y": Top+squareSize*j}, ...piece};
                 positions.push(merged)
             }
+
         })
     })
     const startBoard = (positions) => {
@@ -149,7 +150,6 @@ const ChessSet = (props) => {
 
     // Draw Pieces on ChessBoard
     const Material = (d) => {
-        console.log("MATERIAL:", d)
         const test = { pth: "./pieces/bp.svg", pos: "f7", x: 385, y: 85, id: "b5", size: 80, piece: "pawn" }
         const [image] = useImage(d.pth);
         const offsetDraw = 2
@@ -161,20 +161,21 @@ const ChessSet = (props) => {
         var X = '';
         var Y = '';
 
-        return <Image
+
+            return (<Image
                     image={image}
-                    height={d.size}
-                    width={d.size}
-                    x={d.X-offsetDraw}
-                    y={d.Y-offsetDraw}
-                    id={d.id}
+                    height={d.pieceSize}
+                    width={d.pieceSize}
+                    x={d.x-offsetDraw}
+                    y={d.y-offsetDraw}
+                    key={d.id}
                     draggable={true}
                     onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
                     onDragEnd={(e) => {
                         if (A === B) {
                             e.target.to({
-                                x: offsetDrop + Math.round(e.target.x() / squareSize) * squareSize,
-                                y: offsetDrop + Math.round(e.target.y() / squareSize) * squareSize
+                                x: offsetDrop + Math.round(e.target.x() / d.squareSize) * d.squareSize,
+                                y: offsetDrop + Math.round(e.target.y() / d.squareSize) * d.squareSize
                             })
                         }
                         else{
@@ -182,7 +183,9 @@ const ChessSet = (props) => {
                         }
                         }
                     }
-                    piece={d.piece} onClick={(ev) => (ev)}/>;
+                    piece={d.piece} onClick={(ev) => (ev)}/>)
+
+
         };
 
     const Board = (props) => {
@@ -192,20 +195,17 @@ const ChessSet = (props) => {
                     {props.board.map((d, i) => {
                         return (
                             <React.Fragment>
-
                                 <Rect
-                                    key={d.id}
+                                    key={d.id+"_TILE"}
                                     name={d.cell}
                                     x={d.X}
                                     y={d.Y}
-                                    width={props.squareSize}
-                                    height={props.squareSize}
-                                    fill={i % 2 !== 0 ? A : B}
+                                    width={props.square}
+                                    height={props.square}
+                                    fill={ i % 2 !== 0 ? props.tileA : i % 2 !== 0 ?  props.tileA : props.tileB}
                                     shadowBlur={2}
                                     onClick={(s) => { return (s.toString()) }} />
-
-                                <Text key={d.id + "_TEXT"} text={d.cell} fontSize={15} x={d.X} y={d.Y} />
-
+                                {/* <Text key={d.id + "_TEXT"} text={d.cell} fontSize={15} x={d.X} y={d.Y} />*/}
                                 <Material
                                     pth={'./pieces/' + d.svg}
                                     pos={d.pos}
@@ -215,7 +215,6 @@ const ChessSet = (props) => {
                                     pieceSize={props.piece}
                                     squareSize={props.square}
                                     piece={d.name} />
-
                             </React.Fragment>
                         )
                     })}
@@ -224,7 +223,7 @@ const ChessSet = (props) => {
         )
     }
 
-    return  <Board board={boardMap} square={squareSize} piece={chessmenSize}/>
+    return  <Board board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
 }
 
 class Game extends React.Component{
