@@ -1,23 +1,8 @@
 import React, { useState } from 'react';
 import { Stage, Layer, Rect, Text, Image } from 'react-konva';
 import useImage from 'use-image';
-import Gambit from "./chessLogic";
 import $ from "jquery";
 const chessMoves = require('chess');
-class Game extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state ={
-            data: []
-        }
-    }
-    render() {
-        return(
-            <React.Fragment><Gambit />
-            <Chess /></React.Fragment>
-            )
-    }
-}
 const moveEngine = chessMoves.create({ PGN : true });
 
 moveEngine.on('capture', (move) => {
@@ -53,8 +38,46 @@ moveEngine.on('undo', (move) => {
     console.log(move);
 });
 
-const Chess = (props) => {
-    
+const ChessSet = (props) => {
+
+    // SQRT(Number of Tiles)
+    const n = 8;
+
+    // Rank
+    const numeric = ["8", "7", "6", "5", "4", "3", "2", "1"]
+
+    // File
+    const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+    // Dimension of Board Square
+    const squareSize = 75;
+
+    // Dimension of Chessman
+    const chessmenSize = 80;
+
+    // Padding X
+    const Top = 10;
+    const Bottom = 10;
+    const Left = 10;
+    const Right = 10;
+
+    // Chess Board Height
+    const boardHeight = Top+squareSize*8+Bottom;
+
+    // Chess Board Width
+    const boardWidth = Left+squareSize*8+Right;
+
+    // Chess Board Square Colors
+    const A = "#D18B47";
+    const B = "#FFCE9E";
+
+    const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
+    const mapp = alpha.flatMap(d => numeric.map(v => d + v))
+    const chessboard = new Array(Math.ceil(mapp.length / n)).fill().map(_ => mapp.splice(0, n))
+    const field = chessboard[0].map((_, colIndex) => chessboard.map(row => row[colIndex]));
+    const columns = transpose(field)
+
+    // Chess Pieces
     const whitePieces = () => {
         return [
                 {"player": "w", "id": "w0", "svg": "wp.svg", "pos": "a2", "name": "pawn"},
@@ -96,31 +119,39 @@ const Chess = (props) => {
             ]
 }
 
+    // State Chess Pieces and Board Positions
     const [white] = useState(whitePieces)
     const [black] = useState(blackPieces)
     const [positions] = useState([])
+    const [chessmen] = useState([...black, ...white]);
+    const emptySquare = { player: null, id: null, svg: null, pos: null, name: null }
 
-    const programmaticMotion = (id) => {
-        console.log("You called Move Piece:", id)
-        console.log("Input", id)
-        const instruction = ["Nc3"]
-
-        var stage = $(".STAGE").find('#'+id)[0]
-
-        console.log("STAGE STAGE STAGE SATGE")
-        console.log("STAGE STAGE STAGE SATGE",stage)
-        console.log("STAGE STAGE STAGE SATGE")
-
-        //moveEngine.move('e4');
-
-        console.log("Move Piece CompletedZZZ")
+    // Generate the Initial Map of the Board
+    columns.forEach((rows,i)=>{
+        rows.forEach((cell, j)=>{
+            const piece = chessmen.filter(d =>  d.pos === cell )[0]
+            if (piece === undefined){
+                let merged = {...{"cell": cell, "X": Left+squareSize*i, "Y": Top+squareSize*j}, ...emptySquare};
+                positions.push(merged)
+            }
+            else{
+                let merged = {...{"cell": cell, "X": Left+squareSize*i, "Y": Top+squareSize*j}, ...piece};
+                positions.push(merged)
+            }
+        })
+    })
+    const startBoard = (positions) => {
+        return positions
     }
+
+    // Set Board Map to a State Variable
+    const [boardMap] = useState(startBoard(positions))
+
+    // Draw Pieces on ChessBoard
     const Material = (d) => {
         console.log("MATERIAL:", d)
+        const test = { pth: "./pieces/bp.svg", pos: "f7", x: 385, y: 85, id: "b5", size: 80, piece: "pawn" }
         const [image] = useImage(d.pth);
-        const positions = d.rel
-        const position = positions.filter(p => p.cell === d.pos)[0]
-        const squareSize = 75
         const offsetDraw = 2
         const offsetDrop = 7
         const A = 1;
@@ -130,29 +161,15 @@ const Chess = (props) => {
         var X = '';
         var Y = '';
 
-        //var shape = stage.find('#myRect')[0];
-        {/*
-          if (tween) {
-            tween.destroy();
-          }
-
-          tween = new Konva.Tween({
-            node: shape,
-            duration: 1,
-            scaleX: Math.random() * 2,
-            scaleY: Math.random() * 2,
-            easing: Konva.Easings.ElasticEaseOut,
-          }).play();
-          */}
-        return <Image image={image} height={d.size} width={d.size}
-                    x={position.x-offsetDraw} y={position.y-offsetDraw} id={d.id}
+        return <Image
+                    image={image}
+                    height={d.size}
+                    width={d.size}
+                    x={d.X-offsetDraw}
+                    y={d.Y-offsetDraw}
+                    id={d.id}
                     draggable={true}
-                    onDragStart={(e) => {
-                        // store previous position
-                        X =  e.target.x()
-                        Y =  e.target.y()
-
-                    }}
+                    onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
                     onDragEnd={(e) => {
                         if (A === B) {
                             e.target.to({
@@ -163,81 +180,56 @@ const Chess = (props) => {
                         else{
                             e.target.to({ x: X, y: Y})
                         }
-
-                     } }
+                        }
+                    }
                     piece={d.piece} onClick={(ev) => (ev)}/>;
-
         };
 
-    const Board = () => {
-
-        const chessmen = [...black, ...white];
-        const n = 8;
-        const squareSize = 75;
-        const chessmenSize = 80;
-        const boardTopx = 10;
-        const boardTopy = 10;
-        const boardHeight = boardTopy+squareSize*8+10;
-        const boardWidth = boardTopx+squareSize*8+10;
-        const A = "#D18B47";
-        const B = "#FFCE9E";
-        const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
-
-        const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        const numeric = ["8", "7", "6", "5", "4", "3", "2", "1"]
-        const mapp = alpha.flatMap(d => numeric.map(v => d + v))
-        const chessboard = new Array(Math.ceil(mapp.length / n)).fill().map(_ => mapp.splice(0, n))
-        const field = chessboard[0].map((_, colIndex) => chessboard.map(row => row[colIndex]));
-        const grid = transpose(field)
-
-        return(
+    const Board = (props) => {
+        return (
             <Stage height={boardHeight} width={boardWidth} key={"STAGE"} className={"STAGE"}>
                 <Layer key={"BOARD"}>
-                    {grid.map((row, i) => (
-                        <React.Fragment>
-                            {row.reverse().map((cell, j) => {
-                                positions.push({"cell": cell, "x": boardTopx+squareSize*i, "y": boardTopy+squareSize*j})
-
-                                return(
-                                    <React.Fragment>
-                                        <Rect
-                                            key={i.toString()+j.toString()}
-                                            name={cell}
-                                            x={boardTopx+squareSize*i}
-                                            y={boardTopy+squareSize*j}
-                                            width={squareSize}
-                                            height={squareSize}
-                                            fill={ j % 2 !== 0 ?  i % 2 !== 0 ? A : B : i % 2 === 0 ? A : B}
-                                            shadowBlur={2}
-                                            onClick={(s)=>{return (s.toString())}}
-                                        />
-                                        <Text key={i.toString()+j.toString()+"_TEXT"} text={cell} fontSize={15} x={boardTopx+squareSize*i} y={boardTopy+squareSize*j} />{/**/}
-                                    </React.Fragment>
-                                )
-                            })}
-                        </React.Fragment>
-                    ))}
-                </Layer>
-                <Layer key={"PIECES"}>
-                    {chessmen.map((d, i) => {
+                    {props.board.map((d, i) => {
                         return (
-                            <Material
-                                pth={'./pieces/'+d.svg}
-                                pos={d.pos}
-                                rel={positions}
-                                id={d.id}
-                                size={chessmenSize}
-                                piece={d.name}
-                            />
+                            <React.Fragment>
+
+                                <Rect
+                                    key={d.id}
+                                    name={d.cell}
+                                    x={d.X}
+                                    y={d.Y}
+                                    width={props.squareSize}
+                                    height={props.squareSize}
+                                    fill={i % 2 !== 0 ? A : B}
+                                    shadowBlur={2}
+                                    onClick={(s) => { return (s.toString()) }} />
+
+                                <Text key={d.id + "_TEXT"} text={d.cell} fontSize={15} x={d.X} y={d.Y} />
+
+                                <Material
+                                    pth={'./pieces/' + d.svg}
+                                    pos={d.pos}
+                                    x={d.X}
+                                    y={d.Y}
+                                    id={d.id}
+                                    pieceSize={props.piece}
+                                    squareSize={props.square}
+                                    piece={d.name} />
+
+                            </React.Fragment>
                         )
                     })}
                 </Layer>
             </Stage>
         )
+    }
 
-   }
-    programmaticMotion("w3")
-    return <Board />
+    return  <Board board={boardMap} square={squareSize} piece={chessmenSize}/>
+}
+
+class Game extends React.Component{
+    constructor(props){super(props);this.state={data:[]}}
+    render(){return(<React.Fragment><ChessSet /></React.Fragment>)}
 }
 
 export default Game;

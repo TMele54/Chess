@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import Game from "./components/chess/Chess";
+import Game from "./components/game/boardgame.js";
 
 function App() {
   return (
