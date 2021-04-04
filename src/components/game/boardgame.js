@@ -7,7 +7,7 @@ const chessMoves = require('chess');
 const moveEngine = chessMoves.create({ PGN : true });
 
 const ChessSet = (props) => {
-    const rate = 1500;
+    const rate = 10000;
 
     // Simulate a Random Walk Chess Game
     function getRandomInt(min, max) {
@@ -242,11 +242,16 @@ const ChessSet = (props) => {
 
     // Move Piece Programmatically
     function Move(src, tgt){
-        let boardMapIndex = boardMap.findIndex(x => x.pos === src);
-        let position = boardMap.find(x => x.cell === tgt);
 
-        const update = {
-                    bX: boardMap[boardMapIndex].bX,
+        console.log("Move Function Called")
+
+
+        let boardMapIndex = boardMap.findIndex(x => x.pos === src);
+        console.log("boardMapIndex", boardMapIndex)
+        console.log("boardMap object of boardMapIndex", boardMap[boardMapIndex])
+        let position = boardMap.find(x => x.cell === tgt);
+        console.log("Target Position", position)
+        const update = {bX: boardMap[boardMapIndex].bX,
                     bY: boardMap[boardMapIndex].bY,
                     cell: boardMap[boardMapIndex].cell,
                     iX: position.bX,
@@ -257,20 +262,38 @@ const ChessSet = (props) => {
                     pos: boardMap[boardMapIndex].pos,
                     svg: boardMap[boardMapIndex].svg
                 }
+        console.log("hardcoded new version of boardmap object", update)
 
-        //console.log(src, tgt, boardMapIndex)v
+
+        console.log("Current Definition of the Board:")
+        console.log(boardMap[boardMapIndex])
+
         boardMap[boardMapIndex].pos = tgt;
         boardMap[boardMapIndex].iX = position.bX;
         boardMap[boardMapIndex].iY = position.bY;
+
+        console.log("Updated Definition of the Board:")
+        console.log(boardMap[boardMapIndex])
+        console.log("hardcoded new version of boardmap object", update)
+
+        console.log("Length boardMap", boardMap.length)
+        //delete boardMap[boardMapIndex]
+        boardMap.splice(boardMapIndex, 1);
+        console.log("Length boardMap after removal", boardMap.length)
+        updateBoardMap(boardMap => [...boardMap, update]);
+
+        console.log("Length boardMap after updating", boardMap.length)
+
+
         //console.log(boardMap.length)
-        let newArr = [...boardMap];
-        newArr[boardMapIndex] = update;
+        //let newArr = [...boardMap];
+        //newArr[boardMapIndex] = update;
         //updateBoardMap([newArr])
         //updateBoardMap(newArr)
         //updateBoardMap(boardMap.map(item => item.pos === src ? update : item))
-        updateBoardMap(newArr)
-
-        console.log(boardMap)
+        //updateBoardMap(newArr)
+        //console.log(boardMap)
+        console.log("************************* END MOVE *************************")
     }
 
     moveEngine.on('capture', (move) => {
@@ -294,10 +317,14 @@ const ChessSet = (props) => {
         console.log(move);
     });
     moveEngine.on('move', (move) => {
-        console.log('A piece was moved!');
-        console.log(move)
+        console.log("************************ START MOVE ************************")
+        console.log("A piece was moved!");
+        console.log("The Move:", move)
         let source = move.prevSquare.file+move.prevSquare.rank
         let target = move.postSquare.file+move.postSquare.rank
+
+        console.log("SOURCE:", source)
+        console.log("TARGET:", target)
         Move(source, target)
     });
     moveEngine.on('promote', (square) => {
@@ -310,10 +337,10 @@ const ChessSet = (props) => {
     });
 
     return  (
-    <React.Fragment>
-        <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
-        <Board key={"BOARD"} board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
-    </React.Fragment>
+        <React.Fragment>
+            <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
+            <Board key={"BOARD"} board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
+        </React.Fragment>
     )
 }
 
