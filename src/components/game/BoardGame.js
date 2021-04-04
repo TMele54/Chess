@@ -3,18 +3,25 @@ import { Stage, Layer, Rect, Text, Image } from 'react-konva';
 import PropTypes from 'prop-types';
 import useImage from 'use-image';
 import $ from "jquery";
+
+// Chess Engine from Chess.js
 const chessMoves = require('chess');
 const moveEngine = chessMoves.create({ PGN : true });
 
+// Component which draws game board, renders the 
+// chess pieces and simulates a game using the move engine
 const ChessSet = (props) => {
-    const rate = 10000;
+    // Timeout interval for the simulation
+    const simulationRate = 10000;
 
-    // Simulate a Random Walk Chess Game
+    // Int for selecting a random move
     function getRandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+    
+    // Simulate a Random Walk Chess Game
     function simulateGame() {
         let mv = [];
         setTimeout(function (d,i) {
@@ -22,32 +29,29 @@ const ChessSet = (props) => {
             let validMoves = status.notatedMoves;
             const move = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-            Object.keys(moveEngine.notatedMoves).forEach((notation) => {
-                mv.push(notation)
-               // console.log("notation",notation);
-            });
+            Object.keys(moveEngine.notatedMoves).forEach((notation) => { mv.push(notation) });
             const num = getRandomInt(0,mv.length)
             const guess = mv[num]
             moveEngine.move(guess)
             simulateGame();
 
-            }, rate);
+            }, simulationRate);
     }
 
-    // SQRT(Number of Tiles)
+    // SQRT(Number of Tiles of Chess Board)
     const n = 8;
 
-    // Accessing Canvas Elements
+    // Accessing Canvas Elements (For next (non simulated) version)
     let canvasRef = React.createRef();
     function accessCanvas(d) {
       //  console.log(d)
     }
 
-    // Rank
-    const numeric = ["8", "7", "6", "5", "4", "3", "2", "1"]
+    // Ranks
+    const RANK = ["8", "7", "6", "5", "4", "3", "2", "1"]
 
-    // File
-    const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    // Files
+    const FILE = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
     // Dimension of Board Square
     const squareSize = 75;
@@ -55,9 +59,11 @@ const ChessSet = (props) => {
     // Dimension of Chessman
     const chessmenSize = 80;
 
-    // Padding X
+    // Padding Y
     const Top = 10;
     const Bottom = 10;
+
+    // Padding X
     const Left = 10;
     const Right = 10;
 
@@ -71,8 +77,9 @@ const ChessSet = (props) => {
     const A = "#D18B47";
     const B = "#FFCE9E";
 
+    // Transformation functions, RANK & FILE become a chess board
     const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
-    const mapp = alpha.flatMap(d => numeric.map(v => d + v))
+    const mapp = FILE.flatMap(d => RANK.map(v => d + v))
     const chessboard = new Array(Math.ceil(mapp.length / n)).fill().map(_ => mapp.splice(0, n))
     const field = chessboard[0].map((_, colIndex) => chessboard.map(row => row[colIndex]));
     const columns = transpose(field)
@@ -126,7 +133,7 @@ const ChessSet = (props) => {
     const [chessmen] = useState([...black, ...white]);
     const emptySquare = { player: null, id: null, svg: null, pos: null, name: null }
 
-    // Generate the Initial Map of the Board
+    // Generate the Initial Position Map of the Board
     columns.forEach((rows,i)=>{
         rows.forEach((cell, j)=>{
             const piece = chessmen.filter(d =>  d.pos === cell )[0]
@@ -162,32 +169,32 @@ const ChessSet = (props) => {
         var Y = '';
 
         return (<Image
-                image={image}
-                height={d.pieceSize}
-                width={d.pieceSize}
-                x={d.x-offsetDraw}
-                y={d.y-offsetDraw}
-                // key={d.key+"_PIECE"}
-                //reactKey={d.key+"_PIECE"}
-                draggable={true}
-                onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
-                onDragEnd={(e) => {
-                    if (A === B) {
-                        e.target.to({
-                            x: offsetDrop + Math.round(e.target.x() / d.squareSize) * d.squareSize,
-                            y: offsetDrop + Math.round(e.target.y() / d.squareSize) * d.squareSize
-                        })
-                    }
-                    else{
-                        e.target.to({ x: X, y: Y})
-                    }
-                    }}
-                piece={d.piece}
-                //onClick={(ev) => (ev)}
-                //ref={canvasRef}
-                // ref={(ref) => d.id = ref}
-                onClick={accessCanvas(this)}
-            />)
+                    image={image}
+                    height={d.pieceSize}
+                    width={d.pieceSize}
+                    x={d.x-offsetDraw}
+                    y={d.y-offsetDraw}
+                    // key={d.key+"_PIECE"}
+                    //reactKey={d.key+"_PIECE"}
+                    draggable={true}
+                    onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
+                    onDragEnd={(e) => {
+                        if (A === B) {
+                            e.target.to({
+                                x: offsetDrop + Math.round(e.target.x() / d.squareSize) * d.squareSize,
+                                y: offsetDrop + Math.round(e.target.y() / d.squareSize) * d.squareSize
+                            })
+                        }
+                        else{
+                            e.target.to({ x: X, y: Y})
+                        }
+                        }}
+                    piece={d.piece}
+                    //onClick={(ev) => (ev)}
+                    //ref={canvasRef}
+                    // ref={(ref) => d.id = ref}
+                    onClick={accessCanvas(this)}
+                />)
 
 
         };
@@ -236,11 +243,13 @@ const ChessSet = (props) => {
             </Stage>
         )
     }
+
+    // Temporary, trying to solve the updateBoardMap issue
     let boardMapIndex = 0
     let position = 0
     let newArr = 0
 
-    // Move Piece Programmatically
+    // Move Pieces Programmatically
     function Move(src, tgt){
         console.log("Move Function Called")
         let boardMapIndex = boardMap.findIndex(x => x.pos === src);
@@ -256,7 +265,6 @@ const ChessSet = (props) => {
                     pos: boardMap[boardMapIndex].pos,
                     svg: boardMap[boardMapIndex].svg
                 }
-
         //console.log("boardMapIndex", boardMapIndex)
         //console.log("boardMap object of boardMapIndex", boardMap[boardMapIndex])
         //console.log("Target Position", position)
@@ -292,6 +300,7 @@ const ChessSet = (props) => {
         console.log("************************* END MOVE *************************")
     }
 
+    // Move Engine listeners and activators
     moveEngine.on('capture', (move) => {
         console.log('A piece has been captured!');
         console.log(move);
@@ -332,6 +341,7 @@ const ChessSet = (props) => {
         console.log(move);
     });
 
+    // Returns the board
     return  (
         <React.Fragment>
             <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
@@ -340,11 +350,4 @@ const ChessSet = (props) => {
     )
 }
 
-
-
-class Game extends React.Component{
-    constructor(props){super(props);this.state={data:[]}}
-    render(){return(<React.Fragment><ChessSet key={"CHESSSET"} /></React.Fragment>)}
-}
-
-export default Game;
+export default ChessSet;
