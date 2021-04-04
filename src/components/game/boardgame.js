@@ -242,15 +242,9 @@ const ChessSet = (props) => {
 
     // Move Piece Programmatically
     function Move(src, tgt){
-
         console.log("Move Function Called")
-
-
         let boardMapIndex = boardMap.findIndex(x => x.pos === src);
-        console.log("boardMapIndex", boardMapIndex)
-        console.log("boardMap object of boardMapIndex", boardMap[boardMapIndex])
         let position = boardMap.find(x => x.cell === tgt);
-        console.log("Target Position", position)
         const update = {bX: boardMap[boardMapIndex].bX,
                     bY: boardMap[boardMapIndex].bY,
                     cell: boardMap[boardMapIndex].cell,
@@ -262,35 +256,37 @@ const ChessSet = (props) => {
                     pos: boardMap[boardMapIndex].pos,
                     svg: boardMap[boardMapIndex].svg
                 }
-        console.log("hardcoded new version of boardmap object", update)
 
-
-        console.log("Current Definition of the Board:")
-        console.log(boardMap[boardMapIndex])
-
-        boardMap[boardMapIndex].pos = tgt;
-        boardMap[boardMapIndex].iX = position.bX;
-        boardMap[boardMapIndex].iY = position.bY;
-
-        console.log("Updated Definition of the Board:")
-        console.log(boardMap[boardMapIndex])
-        console.log("hardcoded new version of boardmap object", update)
-
-        console.log("Length boardMap", boardMap.length)
+        //console.log("boardMapIndex", boardMapIndex)
+        //console.log("boardMap object of boardMapIndex", boardMap[boardMapIndex])
+        //console.log("Target Position", position)
+        //console.log("hardcoded new version of boardmap object", update)
+        //console.log("Current Definition of the Board:")
+        //console.log(boardMap[boardMapIndex])
+        // boardMap[boardMapIndex].pos = tgt;
+        //boardMap[boardMapIndex].iX = position.bX;
+        //boardMap[boardMapIndex].iY = position.bY;
+        //console.log("Updated Definition of the Board:")
+        //console.log(boardMap[boardMapIndex])
+        //console.log("hardcoded new version of boardmap object", update)
+        //console.log("Length boardMap", boardMap.length)
+        //let newArr = [...boardMap];
+        //newArr[boardMapIndex].pos = tgt;
+        //newArr[boardMapIndex].iX = position.bX;
+        //newArr[boardMapIndex].iY = position.bY;
+        //console.log("newArrrrrr", newArr)
         //delete boardMap[boardMapIndex]
-        boardMap.splice(boardMapIndex, 1);
-        console.log("Length boardMap after removal", boardMap.length)
-        updateBoardMap(boardMap => [...boardMap, update]);
-
-        console.log("Length boardMap after updating", boardMap.length)
-
-
+        //newArr.splice(boardMapIndex, 1);
+        //console.log("Length newArr", newArr.length)
+        //console.log("Length boardMap after removal", boardMap.length)
+        //updateBoardMap(boardMap => [...boardMap, update]);
+        //updateBoardMap(boardMap.map(item => item.pos === src ? update : item))
+        //console.log("Length boardMap after updating", boardMap.length)
         //console.log(boardMap.length)
         //let newArr = [...boardMap];
         //newArr[boardMapIndex] = update;
         //updateBoardMap([newArr])
         //updateBoardMap(newArr)
-        //updateBoardMap(boardMap.map(item => item.pos === src ? update : item))
         //updateBoardMap(newArr)
         //console.log(boardMap)
         console.log("************************* END MOVE *************************")
