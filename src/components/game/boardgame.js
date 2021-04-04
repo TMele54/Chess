@@ -6,43 +6,15 @@ import $ from "jquery";
 const chessMoves = require('chess');
 const moveEngine = chessMoves.create({ PGN : true });
 
-moveEngine.on('capture', (move) => {
-    console.log('A piece has been captured!');
-    console.log(move);
-});
-moveEngine.on('castle', (move) => {
-    console.log('A castle has occured!');
-    console.log(move);
-});
-moveEngine.on('check', (attack) => {
-    console.log('The King is under attack!');
-    console.log(attack);
-});
-moveEngine.on('checkmate', (attack) => {
-    console.log('The game has ended due to checkmate!');
-    console.log(attack);
-});
-moveEngine.on('enPassant', (move) => {
-    console.log('An en Passant has occured!');
-    console.log(move);
-});
-moveEngine.on('move', (move) => {
-    console.log('A piece was moved!');
-    console.log(move);
-});
-moveEngine.on('promote', (square) => {
-    console.log('A Pawn has been promoted!');
-    console.log(square);
-});
-moveEngine.on('undo', (move) => {
-    console.log('A previous move was undone!');
-    console.log(move);
-});
-
 const ChessSet = (props) => {
+    const rate = 1500;
 
     // Simulate a Random Walk Chess Game
-
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
     function simulateGame() {
         let mv = [];
         setTimeout(function (d,i) {
@@ -52,21 +24,21 @@ const ChessSet = (props) => {
 
             Object.keys(moveEngine.notatedMoves).forEach((notation) => {
                 mv.push(notation)
-                console.log("notation",notation);
+               // console.log("notation",notation);
             });
-            moveEngine.move(mv[0])
+            const num = getRandomInt(0,mv.length)
+            const guess = mv[num]
+            moveEngine.move(guess)
             simulateGame();
 
-            }, 1000);
+            }, rate);
     }
-
 
     // SQRT(Number of Tiles)
     const n = 8;
 
     // Accessing Canvas Elements
     let canvasRef = React.createRef();
-
     function accessCanvas(d) {
       //  console.log(d)
     }
@@ -174,7 +146,7 @@ const ChessSet = (props) => {
     }
 
     // Set Board Map to a State Variable
-    let [boardMap, updateBoardMap] = useState(startBoard(positions))
+    const [boardMap, updateBoardMap] = useState(startBoard(positions))
 
     // Draw Pieces on ChessBoard
     const Material = (d) => {
@@ -195,7 +167,7 @@ const ChessSet = (props) => {
                 width={d.pieceSize}
                 x={d.x-offsetDraw}
                 y={d.y-offsetDraw}
-                //key={d.key+"_PIECE"}
+                // key={d.key+"_PIECE"}
                 //reactKey={d.key+"_PIECE"}
                 draggable={true}
                 onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
@@ -229,7 +201,7 @@ const ChessSet = (props) => {
                         return (
                             <React.Fragment>
                                 <Rect
-                                    key={d.id+"_TILE"}
+                                    key={d.cell+"_TILE"}
                                     name={d.cell}
                                     x={d.bX}
                                     y={d.bY}
@@ -238,7 +210,7 @@ const ChessSet = (props) => {
                                     fill={ i % 2 !== 0 ? props.tileA : i % 2 !== 0 ?  props.tileA : props.tileB}
                                     shadowBlur={2}
                                     onClick={(s) => { return (s.toString()) }} />
-                                <Text key={d.id + "_TEXT"} text={d.cell} fontSize={15} x={d.bX} y={d.bY} />
+                                <Text key={d.cell + "_TEXT"} text={d.cell} fontSize={15} x={d.bX} y={d.bY} />
 
                             </React.Fragment>
                         )
@@ -248,12 +220,12 @@ const ChessSet = (props) => {
                     {props.board.map((d, i) => {
                         return (
                             <Material
+                                //key={d.cell+"_IMAGE"}
                                 pth={'./pieces/' + d.svg}
                                 pos={d.pos}
                                 x={d.iX}
                                 y={d.iY}
                                 id={d.id}
-                                // key={d.id}
                                 pieceSize={props.piece}
                                 squareSize={props.square}
                                 piece={d.name}/>
@@ -264,25 +236,83 @@ const ChessSet = (props) => {
             </Stage>
         )
     }
+    let boardMapIndex = 0
+    let position = 0
+    let newArr = 0
 
-    // Move Piece Programatically
+    // Move Piece Programmatically
     function Move(src, tgt){
-        const boardMapIndex = boardMap.findIndex(x => x.pos === src);
-        const position = boardMap.find(x => x.cell === tgt);
+        let boardMapIndex = boardMap.findIndex(x => x.pos === src);
+        let position = boardMap.find(x => x.cell === tgt);
 
+        const update = {
+                    bX: boardMap[boardMapIndex].bX,
+                    bY: boardMap[boardMapIndex].bY,
+                    cell: boardMap[boardMapIndex].cell,
+                    iX: position.bX,
+                    iY: position.bY,
+                    id: boardMap[boardMapIndex].id,
+                    name: boardMap[boardMapIndex].name,
+                    player: boardMap[boardMapIndex].player,
+                    pos: boardMap[boardMapIndex].pos,
+                    svg: boardMap[boardMapIndex].svg
+                }
+
+        //console.log(src, tgt, boardMapIndex)v
         boardMap[boardMapIndex].pos = tgt;
         boardMap[boardMapIndex].iX = position.bX;
         boardMap[boardMapIndex].iY = position.bY;
-
+        //console.log(boardMap.length)
         let newArr = [...boardMap];
-
+        newArr[boardMapIndex] = update;
+        //updateBoardMap([newArr])
+        //updateBoardMap(newArr)
+        //updateBoardMap(boardMap.map(item => item.pos === src ? update : item))
         updateBoardMap(newArr)
+
+        console.log(boardMap)
     }
+
+    moveEngine.on('capture', (move) => {
+        console.log('A piece has been captured!');
+        console.log(move);
+    });
+    moveEngine.on('castle', (move) => {
+        console.log('A castle has occured!');
+        console.log(move);
+    });
+    moveEngine.on('check', (attack) => {
+        console.log('The King is under attack!');
+        console.log(attack);
+    });
+    moveEngine.on('checkmate', (attack) => {
+        console.log('The game has ended due to checkmate!');
+        console.log(attack);
+    });
+    moveEngine.on('enPassant', (move) => {
+        console.log('An en Passant has occured!');
+        console.log(move);
+    });
+    moveEngine.on('move', (move) => {
+        console.log('A piece was moved!');
+        console.log(move)
+        let source = move.prevSquare.file+move.prevSquare.rank
+        let target = move.postSquare.file+move.postSquare.rank
+        Move(source, target)
+    });
+    moveEngine.on('promote', (square) => {
+        console.log('A Pawn has been promoted!');
+        console.log(square);
+    });
+    moveEngine.on('undo', (move) => {
+        console.log('A previous move was undone!');
+        console.log(move);
+    });
 
     return  (
     <React.Fragment>
-        <button onClick={event => simulateGame()}>Simulate Game</button>
-        <Board board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
+        <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
+        <Board key={"BOARD"} board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
     </React.Fragment>
     )
 }
@@ -291,7 +321,7 @@ const ChessSet = (props) => {
 
 class Game extends React.Component{
     constructor(props){super(props);this.state={data:[]}}
-    render(){return(<React.Fragment><ChessSet /></React.Fragment>)}
+    render(){return(<React.Fragment><ChessSet key={"CHESSSET"} /></React.Fragment>)}
 }
 
 export default Game;
