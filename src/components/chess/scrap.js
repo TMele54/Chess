@@ -1,7 +1,7 @@
 {/*  const selectPiece = (d) => {
         // console.log("Piece:", d.target.attrs)
     };
-    
+
     const chessmanCapabilities = `
                     Kings move one square in any direction, so long as that square is not attacked by an enemy piece. Additionally, kings are able to make a special move, know as castling.
                     Queens move diagonally, horizontally, or vertically any number of squares. They are unable to jump over pieces.
@@ -18,4 +18,39 @@
         // console.log(d.target.attrs.name)
         // console.log(d.target._id)
     };
+import React from 'react';
+
+const [datas, setDatas] = useState([
+    {
+      id:   1,
+      name: 'john',
+      gender: 'm'
+    }
+    {
+      id:   2,
+      name: 'mary',
+      gender: 'f'
+    }
+]);
+
+const updateFieldChanged = index => e => {
+
+    console.log('index: ' + index);
+    console.log('property name: '+ e.target.name);
+    let newArr = [...datas]; // copying the old datas array
+    newArr[index] = e.target.value; // replace e.target.value with whatever you want to change it to
+
+    setDatas(newArr); // ??
+}
+
+return (
+    <React.Fragment>
+        { datas.map( (data, index) => {
+              <li key={data.name}>
+                <input type="text" name="name" value={data.name} onChange={updateFieldChanged(index)}  />
+              </li>
+          })
+        }
+    </React.Fragment>
+)
 */}

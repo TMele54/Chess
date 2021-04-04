@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Stage, Layer, Rect, Text, Image } from 'react-konva';
+import PropTypes from 'prop-types';
 import useImage from 'use-image';
 import $ from "jquery";
 const chessMoves = require('chess');
@@ -40,8 +41,35 @@ moveEngine.on('undo', (move) => {
 
 const ChessSet = (props) => {
 
+    // Simulate a Random Walk Chess Game
+
+    function simulateGame() {
+        let mv = [];
+        setTimeout(function (d,i) {
+            let status = moveEngine.getStatus();
+            let validMoves = status.notatedMoves;
+            const move = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+            Object.keys(moveEngine.notatedMoves).forEach((notation) => {
+                mv.push(notation)
+                console.log("notation",notation);
+            });
+            moveEngine.move(mv[0])
+            simulateGame();
+
+            }, 1000);
+    }
+
+
     // SQRT(Number of Tiles)
     const n = 8;
+
+    // Accessing Canvas Elements
+    let canvasRef = React.createRef();
+
+    function accessCanvas(d) {
+      //  console.log(d)
+    }
 
     // Rank
     const numeric = ["8", "7", "6", "5", "4", "3", "2", "1"]
@@ -131,11 +159,11 @@ const ChessSet = (props) => {
         rows.forEach((cell, j)=>{
             const piece = chessmen.filter(d =>  d.pos === cell )[0]
             if (piece === undefined){
-                let merged = {...{"cell": cell, "X": Left+squareSize*i, "Y": Top+squareSize*j}, ...emptySquare};
+                let merged = {...{"cell": cell, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...emptySquare};
                 positions.push(merged)
             }
             else{
-                let merged = {...{"cell": cell, "X": Left+squareSize*i, "Y": Top+squareSize*j}, ...piece};
+                let merged = {...{"cell": cell, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...piece};
                 positions.push(merged)
             }
 
@@ -146,7 +174,7 @@ const ChessSet = (props) => {
     }
 
     // Set Board Map to a State Variable
-    const [boardMap] = useState(startBoard(positions))
+    let [boardMap, updateBoardMap] = useState(startBoard(positions))
 
     // Draw Pieces on ChessBoard
     const Material = (d) => {
@@ -161,33 +189,38 @@ const ChessSet = (props) => {
         var X = '';
         var Y = '';
 
-
-            return (<Image
-                    image={image}
-                    height={d.pieceSize}
-                    width={d.pieceSize}
-                    x={d.x-offsetDraw}
-                    y={d.y-offsetDraw}
-                    key={d.id}
-                    draggable={true}
-                    onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
-                    onDragEnd={(e) => {
-                        if (A === B) {
-                            e.target.to({
-                                x: offsetDrop + Math.round(e.target.x() / d.squareSize) * d.squareSize,
-                                y: offsetDrop + Math.round(e.target.y() / d.squareSize) * d.squareSize
-                            })
-                        }
-                        else{
-                            e.target.to({ x: X, y: Y})
-                        }
-                        }
+        return (<Image
+                image={image}
+                height={d.pieceSize}
+                width={d.pieceSize}
+                x={d.x-offsetDraw}
+                y={d.y-offsetDraw}
+                //key={d.key+"_PIECE"}
+                //reactKey={d.key+"_PIECE"}
+                draggable={true}
+                onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
+                onDragEnd={(e) => {
+                    if (A === B) {
+                        e.target.to({
+                            x: offsetDrop + Math.round(e.target.x() / d.squareSize) * d.squareSize,
+                            y: offsetDrop + Math.round(e.target.y() / d.squareSize) * d.squareSize
+                        })
                     }
-                    piece={d.piece} onClick={(ev) => (ev)}/>)
+                    else{
+                        e.target.to({ x: X, y: Y})
+                    }
+                    }}
+                piece={d.piece}
+                //onClick={(ev) => (ev)}
+                //ref={canvasRef}
+                // ref={(ref) => d.id = ref}
+                onClick={accessCanvas(this)}
+            />)
 
 
         };
 
+    // Render Chessboard
     const Board = (props) => {
         return (
             <Stage height={boardHeight} width={boardWidth} key={"STAGE"} className={"STAGE"}>
@@ -198,33 +231,63 @@ const ChessSet = (props) => {
                                 <Rect
                                     key={d.id+"_TILE"}
                                     name={d.cell}
-                                    x={d.X}
-                                    y={d.Y}
+                                    x={d.bX}
+                                    y={d.bY}
                                     width={props.square}
                                     height={props.square}
                                     fill={ i % 2 !== 0 ? props.tileA : i % 2 !== 0 ?  props.tileA : props.tileB}
                                     shadowBlur={2}
                                     onClick={(s) => { return (s.toString()) }} />
-                                {/* <Text key={d.id + "_TEXT"} text={d.cell} fontSize={15} x={d.X} y={d.Y} />*/}
-                                <Material
-                                    pth={'./pieces/' + d.svg}
-                                    pos={d.pos}
-                                    x={d.X}
-                                    y={d.Y}
-                                    id={d.id}
-                                    pieceSize={props.piece}
-                                    squareSize={props.square}
-                                    piece={d.name} />
+                                <Text key={d.id + "_TEXT"} text={d.cell} fontSize={15} x={d.bX} y={d.bY} />
+
                             </React.Fragment>
                         )
                     })}
+                </Layer>
+                <Layer key={"PIECES"}>
+                    {props.board.map((d, i) => {
+                        return (
+                            <Material
+                                pth={'./pieces/' + d.svg}
+                                pos={d.pos}
+                                x={d.iX}
+                                y={d.iY}
+                                id={d.id}
+                                // key={d.id}
+                                pieceSize={props.piece}
+                                squareSize={props.square}
+                                piece={d.name}/>
+                            )
+                        }
+                    )}
                 </Layer>
             </Stage>
         )
     }
 
-    return  <Board board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
+    // Move Piece Programatically
+    function Move(src, tgt){
+        const boardMapIndex = boardMap.findIndex(x => x.pos === src);
+        const position = boardMap.find(x => x.cell === tgt);
+
+        boardMap[boardMapIndex].pos = tgt;
+        boardMap[boardMapIndex].iX = position.bX;
+        boardMap[boardMapIndex].iY = position.bY;
+
+        let newArr = [...boardMap];
+
+        updateBoardMap(newArr)
+    }
+
+    return  (
+    <React.Fragment>
+        <button onClick={event => simulateGame()}>Simulate Game</button>
+        <Board board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
+    </React.Fragment>
+    )
 }
+
+
 
 class Game extends React.Component{
     constructor(props){super(props);this.state={data:[]}}
