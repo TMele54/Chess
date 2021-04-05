@@ -11,8 +11,26 @@ const moveEngine = chessMoves.create({ PGN : true });
 // Component which draws game board, renders the 
 // chess pieces and simulates a game using the move engine
 const ChessSet = (props) => {
-    // Timeout interval for the simulation
-    const simulationRate = 10000;
+    {/*
+        const simulationRate = props.game.
+        const n = props.game.
+        const RANK = props.game.
+        const FILE = props.game.
+        const squareSize = props.game.
+        const chessmenSize = props.game.
+        const Top = props.game.
+        const Bottom = props.game.
+        const Left = props.game.
+        const Right = props.game.
+        const boardHeight = props.game.
+        const boardWidth = props.game.
+        const colorA = props.game.
+        const colorB = props.game.
+        const positions = props.game.
+    */}
+
+    // Set Board Map to a State Variable
+    const [boardMap, updateBoardMap] = useState(props.game.positions)
 
     // Int for selecting a random move
     function getRandomInt(min, max) {
@@ -20,7 +38,7 @@ const ChessSet = (props) => {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-    
+
     // Simulate a Random Walk Chess Game
     function simulateGame() {
         let mv = [];
@@ -35,125 +53,8 @@ const ChessSet = (props) => {
             moveEngine.move(guess)
             simulateGame();
 
-            }, simulationRate);
+            }, props.game.simulationRate);
     }
-
-    // SQRT(Number of Tiles of Chess Board)
-    const n = 8;
-
-    // Accessing Canvas Elements (For next (non simulated) version)
-    let canvasRef = React.createRef();
-    function accessCanvas(d) {
-      //  console.log(d)
-    }
-
-    // Ranks
-    const RANK = ["8", "7", "6", "5", "4", "3", "2", "1"]
-
-    // Files
-    const FILE = ["a", "b", "c", "d", "e", "f", "g", "h"]
-
-    // Dimension of Board Square
-    const squareSize = 75;
-
-    // Dimension of Chessman
-    const chessmenSize = 80;
-
-    // Padding Y
-    const Top = 10;
-    const Bottom = 10;
-
-    // Padding X
-    const Left = 10;
-    const Right = 10;
-
-    // Chess Board Height
-    const boardHeight = Top+squareSize*8+Bottom;
-
-    // Chess Board Width
-    const boardWidth = Left+squareSize*8+Right;
-
-    // Chess Board Square Colors
-    const A = "#D18B47";
-    const B = "#FFCE9E";
-
-    // Transformation functions, RANK & FILE become a chess board
-    const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
-    const mapp = FILE.flatMap(d => RANK.map(v => d + v))
-    const chessboard = new Array(Math.ceil(mapp.length / n)).fill().map(_ => mapp.splice(0, n))
-    const field = chessboard[0].map((_, colIndex) => chessboard.map(row => row[colIndex]));
-    const columns = transpose(field)
-
-    // Chess Pieces
-    const whitePieces = () => {
-        return [
-                {"player": "w", "id": "w0", "svg": "wp.svg", "pos": "a2", "name": "pawn"},
-                {"player": "w", "id": "w1", "svg": "wp.svg", "pos": "b2", "name": "pawn"},
-                {"player": "w", "id": "w2", "svg": "wp.svg", "pos": "c2", "name": "pawn"},
-                {"player": "w", "id": "w3", "svg": "wp.svg", "pos": "d2", "name": "pawn"},
-                {"player": "w", "id": "w4", "svg": "wp.svg", "pos": "e2", "name": "pawn"},
-                {"player": "w", "id": "w5", "svg": "wp.svg", "pos": "f2", "name": "pawn"},
-                {"player": "w", "id": "w6", "svg": "wp.svg", "pos": "g2", "name": "pawn"},
-                {"player": "w", "id": "w7", "svg": "wp.svg", "pos": "h2", "name": "pawn"},
-                {"player": "w", "id": "w8", "svg": "wr.svg", "pos": "a1", "name": "rook"},
-                {"player": "w", "id": "w9", "svg": "wr.svg", "pos": "h1", "name": "rook"},
-                {"player": "w", "id": "w10", "svg": "wn.svg", "pos": "b1", "name": "knight"},
-                {"player": "w", "id": "w11", "svg": "wn.svg", "pos": "g1", "name": "knight"},
-                {"player": "w", "id": "w12", "svg": "wb.svg", "pos": "c1", "name": "bishop"},
-                {"player": "w", "id": "w13", "svg": "wb.svg", "pos": "f1", "name": "bishop"},
-                {"player": "w", "id": "w14", "svg": "wq.svg", "pos": "d1", "name": "queen"},
-                {"player": "w", "id": "w15", "svg": "wk.svg", "pos": "e1", "name": "king"}
-                ]
-    }
-    const blackPieces = () => {
-    return [
-            {"player": "b", "id": "b0", "svg": "bp.svg", "pos": "a7", "name": "pawn"},
-            {"player": "b", "id": "b1", "svg": "bp.svg", "pos": "b7", "name": "pawn"},
-            {"player": "b", "id": "b2", "svg": "bp.svg", "pos": "c7", "name": "pawn"},
-            {"player": "b", "id": "b3", "svg": "bp.svg", "pos": "d7", "name": "pawn"},
-            {"player": "b", "id": "b4", "svg": "bp.svg", "pos": "e7", "name": "pawn"},
-            {"player": "b", "id": "b5", "svg": "bp.svg", "pos": "f7", "name": "pawn"},
-            {"player": "b", "id": "b6", "svg": "bp.svg", "pos": "g7", "name": "pawn"},
-            {"player": "b", "id": "b7", "svg": "bp.svg", "pos": "h7", "name": "pawn"},
-            {"player": "b", "id": "b8", "svg": "br.svg", "pos": "a8", "name": "rook"},
-            {"player": "b", "id": "b9", "svg": "br.svg", "pos": "h8", "name": "rock"},
-            {"player": "b", "id": "b10", "svg": "bn.svg", "pos": "b8", "name": "knight"},
-            {"player": "b", "id": "b11", "svg": "bn.svg", "pos": "g8", "name": "knight"},
-            {"player": "b", "id": "b12", "svg": "bb.svg", "pos": "c8", "name": "bishop"},
-            {"player": "b", "id": "b13", "svg": "bb.svg", "pos": "f8", "name": "bishop"},
-            {"player": "b", "id": "b14", "svg": "bq.svg", "pos": "d8", "name": "queen"},
-            {"player": "b", "id": "b15", "svg": "bk.svg", "pos": "e8", "name": "king"}
-            ]
-}
-
-    // State Chess Pieces and Board Positions
-    const [white] = useState(whitePieces)
-    const [black] = useState(blackPieces)
-    const [positions] = useState([])
-    const [chessmen] = useState([...black, ...white]);
-    const emptySquare = { player: null, id: null, svg: null, pos: null, name: null }
-
-    // Generate the Initial Position Map of the Board
-    columns.forEach((rows,i)=>{
-        rows.forEach((cell, j)=>{
-            const piece = chessmen.filter(d =>  d.pos === cell )[0]
-            if (piece === undefined){
-                let merged = {...{"cell": cell, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...emptySquare};
-                positions.push(merged)
-            }
-            else{
-                let merged = {...{"cell": cell, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...piece};
-                positions.push(merged)
-            }
-
-        })
-    })
-    const startBoard = (positions) => {
-        return positions
-    }
-
-    // Set Board Map to a State Variable
-    const [boardMap, updateBoardMap] = useState(startBoard(positions))
 
     // Draw Pieces on ChessBoard
     const Material = (d) => {
@@ -174,8 +75,6 @@ const ChessSet = (props) => {
                     width={d.pieceSize}
                     x={d.x-offsetDraw}
                     y={d.y-offsetDraw}
-                    // key={d.key+"_PIECE"}
-                    //reactKey={d.key+"_PIECE"}
                     draggable={true}
                     onDragStart={(e) => {X =  e.target.x();Y =  e.target.y();}}
                     onDragEnd={(e) => {
@@ -190,10 +89,6 @@ const ChessSet = (props) => {
                         }
                         }}
                     piece={d.piece}
-                    //onClick={(ev) => (ev)}
-                    //ref={canvasRef}
-                    // ref={(ref) => d.id = ref}
-                    onClick={accessCanvas(this)}
                 />)
 
 
@@ -202,9 +97,9 @@ const ChessSet = (props) => {
     // Render Chessboard
     const Board = (props) => {
         return (
-            <Stage height={boardHeight} width={boardWidth} key={"STAGE"} className={"STAGE"}>
+            <Stage height={props.square} width={props.square} key={"STAGE"} className={"STAGE"}>
                 <Layer key={"BOARD"}>
-                    {props.board.map((d, i) => {
+                    {props.boardMap.map((d, i) => {
                         return (
                             <React.Fragment>
                                 <Rect
@@ -224,10 +119,9 @@ const ChessSet = (props) => {
                     })}
                 </Layer>
                 <Layer key={"PIECES"}>
-                    {props.board.map((d, i) => {
+                    {props.boardMap.map((d, i) => {
                         return (
                             <Material
-                                //key={d.cell+"_IMAGE"}
                                 pth={'./pieces/' + d.svg}
                                 pos={d.pos}
                                 x={d.iX}
@@ -241,19 +135,17 @@ const ChessSet = (props) => {
                     )}
                 </Layer>
             </Stage>
-        )
+         )
     }
-
-    // Temporary, trying to solve the updateBoardMap issue
-    let boardMapIndex = 0
-    let position = 0
-    let newArr = 0
 
     // Move Pieces Programmatically
     function Move(src, tgt){
-        console.log("Move Function Called")
+        console.log("BoardMap:", boardMap)
         let boardMapIndex = boardMap.findIndex(x => x.pos === src);
         let position = boardMap.find(x => x.cell === tgt);
+        console.log("S-T-B:",src,tgt,boardMapIndex)
+        console.log("POsition:",position)
+        console.log("BoardMap:", boardMap)
         const update = {bX: boardMap[boardMapIndex].bX,
                     bY: boardMap[boardMapIndex].bY,
                     cell: boardMap[boardMapIndex].cell,
@@ -265,6 +157,16 @@ const ChessSet = (props) => {
                     pos: boardMap[boardMapIndex].pos,
                     svg: boardMap[boardMapIndex].svg
                 }
+        boardMap[boardMapIndex].pos = tgt;
+        boardMap[boardMapIndex].iX = position.bX;
+        boardMap[boardMapIndex].iY = position.bY;
+        updateBoardMap(boardMap => [...boardMap]);
+        console.log(boardMap)
+        {/*  //https://www.robinwieruch.de/react-update-item-in-list
+        //let newBoardMap = [ ...boardMap ];
+        //newBoardMap[boardMapIndex] = update
+        //updateBoardMap(newBoardMap)
+        //updateBoardMap(boardMap.map(item => item.pos === src ? update : item))
         //console.log("boardMapIndex", boardMapIndex)
         //console.log("boardMap object of boardMapIndex", boardMap[boardMapIndex])
         //console.log("Target Position", position)
@@ -296,7 +198,8 @@ const ChessSet = (props) => {
         //updateBoardMap([newArr])
         //updateBoardMap(newArr)
         //updateBoardMap(newArr)
-        //console.log(boardMap)
+        //console.log(boardMap)*/}
+
         console.log("************************* END MOVE *************************")
     }
 
@@ -323,13 +226,9 @@ const ChessSet = (props) => {
     });
     moveEngine.on('move', (move) => {
         console.log("************************ START MOVE ************************")
-        console.log("A piece was moved!");
-        console.log("The Move:", move)
+        console.log(move)
         let source = move.prevSquare.file+move.prevSquare.rank
         let target = move.postSquare.file+move.postSquare.rank
-
-        console.log("SOURCE:", source)
-        console.log("TARGET:", target)
         Move(source, target)
     });
     moveEngine.on('promote', (square) => {
@@ -345,7 +244,7 @@ const ChessSet = (props) => {
     return  (
         <React.Fragment>
             <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
-            <Board key={"BOARD"} board={boardMap} square={squareSize} piece={chessmenSize} tileA={A} tileB={B}/>
+            <Board key={"BOARD"} boardMap={boardMap} square={props.game.boardHeight} piece={props.game.chessmenSize} tileA={props.game.colorA} tileB={props.game.colorB}/>
         </React.Fragment>
     )
 }
