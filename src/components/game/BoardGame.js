@@ -39,21 +39,75 @@ const ChessSet = (props) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    const test_moves = [
+        {
+            Na3 :{
+                "dest": {
+                    file: "a", piece: null, rank: 3
+                },
+                "src": {
+                    file: "b", piece: null, rank: 1
+                }
+            }
+        },
+        {
+            Nc3 :{
+                "dest": {
+                    file: "c", piece: null, rank: 3
+                },
+                "src": {
+                    file: "b", piece: null, rank: 1
+                }
+            }
+        },
+        {
+            Nf3 :{
+                "dest": {
+                    file: "f", piece: null, rank: 3
+                },
+                "src": {
+                    file: "g", piece: null, rank: 1
+                }
+            }
+        },
+        {
+            Nh3 :{
+                "dest": {
+                    file: "h", piece: null, rank: 3
+                },
+                "src": {
+                    file: "g", piece: null, rank: 1
+                }
+            }
+        },
+    ]
+    const tst_mvs = []
+    var move_counter = 0
+
     // Simulate a Random Walk Chess Game
     function simulateGame() {
+
         let mv = [];
+
         setTimeout(function (d,i) {
             let status = moveEngine.getStatus();
             let validMoves = status.notatedMoves;
-            const move = validMoves[Math.floor(Math.random() * validMoves.length)];
 
             Object.keys(moveEngine.notatedMoves).forEach((notation) => { mv.push(notation) });
+            console.log("Valid MOVES", validMoves)
             const num = getRandomInt(0,mv.length)
-            const guess = mv[num]
-            moveEngine.move(guess)
+            const move = validMoves[mv[num]]
+
+            let source = move.src.file+move.src.rank
+            let target = move.dest.file+move.dest.rank
+
+            moveEngine.move(mv[num])
+            Move(source, target)
+
             simulateGame();
 
-            }, props.game.simulationRate);
+            }, 1000);
+
     }
 
     // Draw Pieces on ChessBoard
@@ -139,14 +193,12 @@ const ChessSet = (props) => {
     }
 
     // Move Pieces Programmatically
-    function Move(src, tgt){
-        console.log("BoardMap:", boardMap)
+    function Move(src, tgt, cls){
         let boardMapIndex = boardMap.findIndex(x => x.pos === src);
         let position = boardMap.find(x => x.cell === tgt);
-        console.log("S-T-B:",src,tgt,boardMapIndex)
-        console.log("POsition:",position)
-        console.log("BoardMap:", boardMap)
-        const update = {bX: boardMap[boardMapIndex].bX,
+
+        const update = {
+                    bX: boardMap[boardMapIndex].bX,
                     bY: boardMap[boardMapIndex].bY,
                     cell: boardMap[boardMapIndex].cell,
                     iX: position.bX,
@@ -157,11 +209,13 @@ const ChessSet = (props) => {
                     pos: boardMap[boardMapIndex].pos,
                     svg: boardMap[boardMapIndex].svg
                 }
+
         boardMap[boardMapIndex].pos = tgt;
         boardMap[boardMapIndex].iX = position.bX;
         boardMap[boardMapIndex].iY = position.bY;
-        updateBoardMap(boardMap => [...boardMap]);
-        console.log(boardMap)
+
+        updateBoardMap(boardMap => [...boardMap, update]);
+
         {/*  //https://www.robinwieruch.de/react-update-item-in-list
         //let newBoardMap = [ ...boardMap ];
         //newBoardMap[boardMapIndex] = update
@@ -199,8 +253,6 @@ const ChessSet = (props) => {
         //updateBoardMap(newArr)
         //updateBoardMap(newArr)
         //console.log(boardMap)*/}
-
-        console.log("************************* END MOVE *************************")
     }
 
     // Move Engine listeners and activators
@@ -225,11 +277,9 @@ const ChessSet = (props) => {
         console.log(move);
     });
     moveEngine.on('move', (move) => {
-        console.log("************************ START MOVE ************************")
-        console.log(move)
+        console.log("A Move was mode!")
         let source = move.prevSquare.file+move.prevSquare.rank
         let target = move.postSquare.file+move.postSquare.rank
-        Move(source, target)
     });
     moveEngine.on('promote', (square) => {
         console.log('A Pawn has been promoted!');
