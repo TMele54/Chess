@@ -7,6 +7,9 @@ import $ from "jquery";
 // Chess Engine from Chess.js
 const chessMoves = require('chess');
 const moveEngine = chessMoves.create({ PGN : true });
+const blackCapturedWhite = Array()
+const whiteCapturedBlack = Array()
+const captured = Array()
 
 // Component which draws game board, renders the 
 // chess pieces and simulates a game using the move engine
@@ -22,50 +25,6 @@ const ChessSet = (props) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    const test_moves = [
-        {
-            Na3 :{
-                "dest": {
-                    file: "a", piece: null, rank: 3
-                },
-                "src": {
-                    file: "b", piece: null, rank: 1
-                }
-            }
-        },
-        {
-            Nc3 :{
-                "dest": {
-                    file: "c", piece: null, rank: 3
-                },
-                "src": {
-                    file: "b", piece: null, rank: 1
-                }
-            }
-        },
-        {
-            Nf3 :{
-                "dest": {
-                    file: "f", piece: null, rank: 3
-                },
-                "src": {
-                    file: "g", piece: null, rank: 1
-                }
-            }
-        },
-        {
-            Nh3 :{
-                "dest": {
-                    file: "h", piece: null, rank: 3
-                },
-                "src": {
-                    file: "g", piece: null, rank: 1
-                }
-            }
-        },
-    ]
-    const tst_mvs = []
-    var move_counter = 0
 
     // Simulate a Random Walk Chess Game
     function simulateGame() {
@@ -183,6 +142,31 @@ const ChessSet = (props) => {
          )
     }
 
+    // Render Captured Pieces
+    const Captured = (props) => {
+        if (props.captures.length === 0){
+            return ( null )
+        }
+        else {
+            return (
+                <Stage height={200} width={props.width} key={"CSTAGE"} className={"CSTAGE"}>
+                    <Layer key={"CPanel"}>
+                      {props.captures.map((d, i) => {
+                            return (
+                                <React.Fragment>
+                                    <Text key={d.piece + "_Captured"}
+                                          text={d.capturer + " captured " + d.capturee + "on" + d.position + ". (" + d.svg + ") "}
+                                          fontSize={15} x={d.bX} y={d.bY}/>
+                                    <br/>
+                                </React.Fragment>
+                            )
+                        })
+                        }
+                    </Layer>
+                </Stage>
+            )
+        }
+    }
     // Move Pieces Programmatically
     function Move(src, tgt, cls){
         let boardMapIndexSource = boardMap.findIndex(x => x.cell === src);
@@ -193,7 +177,13 @@ const ChessSet = (props) => {
         console.log("The BM value Source Target", boardMap[boardMapIndexSource], boardMap[boardMapIndexTarget])
 
         if (boardMap[boardMapIndexTarget].player !== null){
-            alert("CAPTURE")
+            let item = boardMap[boardMapIndexTarget]
+            if(boardMap[boardMapIndexTarget].player === "w"){
+                captured.push({'caturer': "B", "capturee": "W", "material": item.piece, "position": item.pos, "svg": item.svg})
+            }else{
+                captured.push({'caturer': "W", "capturee": "B", "material": item.piece, "position": item.pos, "svg": item.svg})
+            }
+            console.log("Pieces Captured", captured)
         }
 
         boardMap[boardMapIndexTarget].player = boardMap[boardMapIndexSource].player
@@ -285,12 +275,15 @@ const ChessSet = (props) => {
     });
 
     // Returns the board
-    return  (
+     return  (
         <React.Fragment>
             <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
             <Board key={"BOARD"} boardMap={boardMap} square={props.game.boardHeight} piece={props.game.chessmenSize} tileA={props.game.colorA} tileB={props.game.colorB}/>
+            <Captured key={"CAPTURES"} captures={captured} width={props.game.boardWidth}/>
         </React.Fragment>
     )
+
+
 }
 
 export default ChessSet;
