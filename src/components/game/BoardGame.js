@@ -11,23 +11,6 @@ const moveEngine = chessMoves.create({ PGN : true });
 // Component which draws game board, renders the 
 // chess pieces and simulates a game using the move engine
 const ChessSet = (props) => {
-    {/*
-        const simulationRate = props.game.
-        const n = props.game.
-        const RANK = props.game.
-        const FILE = props.game.
-        const squareSize = props.game.
-        const chessmenSize = props.game.
-        const Top = props.game.
-        const Bottom = props.game.
-        const Left = props.game.
-        const Right = props.game.
-        const boardHeight = props.game.
-        const boardWidth = props.game.
-        const colorA = props.game.
-        const colorB = props.game.
-        const positions = props.game.
-    */}
 
     // Set Board Map to a State Variable
     const [boardMap, updateBoardMap] = useState(props.game.positions)
@@ -95,18 +78,26 @@ const ChessSet = (props) => {
 
             Object.keys(moveEngine.notatedMoves).forEach((notation) => { mv.push(notation) });
             console.log("Valid MOVES", validMoves)
-            const num = getRandomInt(0,mv.length)
+            console.log("Valid MOVES len", validMoves.length)
+
+            const num = getRandomInt(0,mv.length-1)
+            console.log("Move Index is", num)
+
             const move = validMoves[mv[num]]
+            console.log("The move", move)
 
             let source = move.src.file+move.src.rank
             let target = move.dest.file+move.dest.rank
+
+            console.log("Intended Source", source)
+            console.log("Intended Target", target)
 
             moveEngine.move(mv[num])
             Move(source, target)
 
             simulateGame();
 
-            }, 1000);
+            }, 3000);
 
     }
 
@@ -163,7 +154,7 @@ const ChessSet = (props) => {
                                     y={d.bY}
                                     width={props.square}
                                     height={props.square}
-                                    fill={ i % 2 !== 0 ? props.tileA : i % 2 !== 0 ?  props.tileA : props.tileB}
+                                    fill={d.cellFill}
                                     shadowBlur={2}
                                     onClick={(s) => { return (s.toString()) }} />
                                 <Text key={d.cell + "_TEXT"} text={d.cell} fontSize={15} x={d.bX} y={d.bY} />
@@ -194,27 +185,30 @@ const ChessSet = (props) => {
 
     // Move Pieces Programmatically
     function Move(src, tgt, cls){
-        let boardMapIndex = boardMap.findIndex(x => x.pos === src);
+        let boardMapIndexSource = boardMap.findIndex(x => x.cell === src);
+        let boardMapIndexTarget = boardMap.findIndex(x => x.cell === tgt);
         let position = boardMap.find(x => x.cell === tgt);
 
-        const update = {
-                    bX: boardMap[boardMapIndex].bX,
-                    bY: boardMap[boardMapIndex].bY,
-                    cell: boardMap[boardMapIndex].cell,
-                    iX: position.bX,
-                    iY: position.bY,
-                    id: boardMap[boardMapIndex].id,
-                    name: boardMap[boardMapIndex].name,
-                    player: boardMap[boardMapIndex].player,
-                    pos: boardMap[boardMapIndex].pos,
-                    svg: boardMap[boardMapIndex].svg
-                }
+        console.log("The BM index Source Target", boardMapIndexSource, boardMapIndexTarget)
+        console.log("The BM value Source Target", boardMap[boardMapIndexSource], boardMap[boardMapIndexTarget])
 
-        boardMap[boardMapIndex].pos = tgt;
-        boardMap[boardMapIndex].iX = position.bX;
-        boardMap[boardMapIndex].iY = position.bY;
+        if (boardMap[boardMapIndexTarget].player !== null){
+            alert("CAPTURE")
+        }
 
-        updateBoardMap(boardMap => [...boardMap, update]);
+        boardMap[boardMapIndexTarget].player = boardMap[boardMapIndexSource].player
+        boardMap[boardMapIndexTarget].pos = boardMap[boardMapIndexSource].pos
+        boardMap[boardMapIndexTarget].id = boardMap[boardMapIndexSource].id
+        boardMap[boardMapIndexTarget].svg = boardMap[boardMapIndexSource].svg
+        boardMap[boardMapIndexTarget].name  = boardMap[boardMapIndexSource].name
+
+        boardMap[boardMapIndexSource].player = null;
+        boardMap[boardMapIndexSource].pos = null;
+        boardMap[boardMapIndexSource].id = null;
+        boardMap[boardMapIndexSource].svg = null;
+        boardMap[boardMapIndexSource].name  = null;
+
+        updateBoardMap(boardMap => [...boardMap]);
 
         {/*  //https://www.robinwieruch.de/react-update-item-in-list
         //let newBoardMap = [ ...boardMap ];

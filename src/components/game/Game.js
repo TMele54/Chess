@@ -93,12 +93,13 @@ function initBoardMap() {
     columns.forEach((rows,i)=>{
         rows.forEach((cell, j)=>{
             const piece = chessmen.filter(d =>  d.pos === cell )[0]
+            const cellColor = i % 2 !== 0 ? j % 2 !== 0 ? colorB :colorA : j % 2 !== 0 ? colorA :colorB
             if (piece === undefined){
-                let merged = {...{"cell": cell, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...emptySquare};
+                let merged = {...{"cell": cell, "cellFill": cellColor, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...emptySquare};
                 positions.push(merged)
             }
             else{
-                let merged = {...{"cell": cell, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...piece};
+                let merged = {...{"cell": cell, "cellFill": cellColor, "iX": Left+squareSize*i, "iY": Top+squareSize*j, "bX": Left+squareSize*i, "bY": Top+squareSize*j}, ...piece};
                 positions.push(merged)
             }
 
