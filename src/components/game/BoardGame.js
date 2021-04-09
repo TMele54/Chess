@@ -279,7 +279,7 @@ const ChessSet = (props) => {
         <React.Fragment>
             <button key={"BUTTON"} onClick={event => simulateGame()}>Simulate Game</button>
             <Board key={"BOARD"} boardMap={boardMap} square={props.game.boardHeight} piece={props.game.chessmenSize} tileA={props.game.colorA} tileB={props.game.colorB}/>
-            <Captured key={"CAPTURES"} captures={captured} width={props.game.boardWidth}/>
+            {/*<Captured key={"CAPTURES"} captures={captured} width={props.game.boardWidth}/>*/}
         </React.Fragment>
     )
 
