@@ -308,7 +308,6 @@ const ChessSet = (props) => {
                                     shadowBlur={2}
                                     onClick={(s) => { return (s.toString()) }} />
                                 <Text key={d.cell + "_TEXT"} text={d.cell} fontSize={15} x={d.bX} y={d.bY} />
-
                             </React.Fragment>
                         )
                     })}
@@ -429,6 +428,7 @@ const ChessSet = (props) => {
         //updateBoardMap(newArr)
         //updateBoardMap(newArr)
         //console.log(boardMap)*/}
+
     }
 
     // Move Engine listeners and activators
@@ -469,38 +469,34 @@ const ChessSet = (props) => {
     // Returns the board
      return  (
          <ThemeProvider theme={theme}>
-             <br/>
+            <br/>
             <Grid container direction="row" justifyContent="center" className={classesGrid.root} alignItems="center" spacing={3}>
-
                 <Card variant="outlined" border={3} className={classesCard.root} borderRadius="50%">
                     <CardHeader  title="Championship Chess" subheader="One Pawn at a Time" style={{marginBottom: 0}} />
-
                     <CardContent>
                         <Board key={"BOARD"} boardMap={boardMap} square={props.game.boardHeight} piece={props.game.chessmenSize} tileA={props.game.colorA} tileB={props.game.colorB}/>
                     </CardContent>
-
                     <CardActions>
                         <Container className={classesContainer}>
-                         <div className={classesButtonGroup.root}>
-                          <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group">
-                            <Button variant="contained" color="secondary" key={"B1"} className={classesButton.button} startIcon={<LaptopChromebookIcon />} onClick={event => simulateGame()}>Simulate Game</Button>
-                            <>
-                                <Button variant="contained" color="primary" key={"B2"} className={classesButton.button} startIcon={<PersonIcon />} onClick={event => singlePlayerGame()}>Single Player</Button>
-                                <Modal aria-labelledby="spring-modal-title" aria-describedby="spring-modal-description" className={classesModal.modal} open={open} onClose={handleCloseModal} closeAfterTransition BackdropComponent={Backdrop} BackdropProps={{ timeout: 500, }} >
-                                    <Fade in={open}>
+                            <div className={classesButtonGroup.root}>
+                                <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group">
+                                    <Button variant="contained" color="secondary" key={"B1"} className={classesButton.button} startIcon={<LaptopChromebookIcon />} onClick={event => simulateGame()}>Simulate Game</Button>
+                                        <>
+                                            <Button variant="contained" color="primary" key={"B2"} className={classesButton.button} startIcon={<PersonIcon />} onClick={event => singlePlayerGame()}>Single Player</Button>
+                                            <Modal aria-labelledby="spring-modal-title" aria-describedby="spring-modal-description" className={classesModal.modal} open={open} onClose={handleCloseModal} closeAfterTransition BackdropComponent={Backdrop} BackdropProps={{ timeout: 500, }} >
+                                        <Fade in={open}>
                                         <div className={classesModal.paper}>
                                         <h2 id="spring-modal-title">Spring modal</h2>
                                         <p id="spring-modal-description">react-spring animates me.</p>
                                         </div>
-                                    </Fade>
-                                </Modal>
-                            </>
-                            <Button variant="contained" color="primary" key={"B3"} className={classesButton.button} startIcon={<SupervisedUserCircleIcon />} onClick={event => multiPlayerGame()}>Multi-Player</Button>
-                          </ButtonGroup>
-                        </div>
+                                        </Fade>
+                                        </Modal>
+                                        </>
+                                    <Button variant="contained" color="primary" key={"B3"} className={classesButton.button} startIcon={<SupervisedUserCircleIcon />} onClick={event => multiPlayerGame()}>Multi-Player</Button>
+                                </ButtonGroup>
+                            </div>
                         </Container>
                     </CardActions>
-
                </Card>
              </Grid>
          </ThemeProvider>
